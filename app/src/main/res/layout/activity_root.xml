@@ -37,6 +37,12 @@
             android:text="Loading..."/>
 
     </androidx.core.widget.NestedScrollView>
+    
+    <ru.skillbranch.skillarticles.ui.custom.Submenu
+        android:id="@+id/submenu"
+        android:layout_width="200dp"
+        android:layout_height="96dp"
+    />
 
     <ru.skillbranch.skillarticles.ui.custom.Bottombar
         android:id="@+id/bottombar"
