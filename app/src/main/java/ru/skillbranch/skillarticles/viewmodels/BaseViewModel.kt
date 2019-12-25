@@ -21,6 +21,16 @@ abstract class BaseViewModel<T>(initState: T): ViewModel(){
         state.observe(owner, Observer{onChanged(it!!)})
 
     }
+
+    protected fun <S> subscribeOnDataSource(
+        source: LiveData<S>,
+        onChanged: (newValue: S, currentState: T) -> T?
+    )
+    {
+        state.addSource(source){
+            state.value = onChanged(it, currentState) ?: return@addSource
+        }
+    }
 }
 
 
