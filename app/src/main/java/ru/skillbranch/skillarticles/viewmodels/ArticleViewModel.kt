@@ -4,10 +4,12 @@ import androidx.lifecycle.LiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
+import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.format
 
 class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleState>(ArticleState()) {
     private val repository = ArticleRepository
+
 
     init {
         subscribeOnDataSource(getArticleData()){ article, state ->
@@ -35,6 +37,15 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
             state.copy(
                 isBookmark = info.isBookmark,
                 isLike = info.isLike
+            )
+        }
+
+        subscribeOnDataSource(repository.getAppSettings()) { settings, state ->
+            settings ?: return@subscribeOnDataSource null
+            state.copy(
+                isDarkMode = settings.isDarkMode,
+                isBigText = settings.isBigText
+
             )
         }
     }
@@ -67,7 +78,10 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * Получение настроек приложения
      */
     fun handleNightMode()
-    {}
+    {
+        val settings = currentState.toAppSettings()
+        repository.updateSettings(settings.copy(isDarkMode = !settings.isDarkMode))
+    }
 
 
     /**
@@ -75,14 +89,18 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * необходимо увеличить шрифт до значения 18
      */
     fun handleUpText()
-    {}
+    {
+        repository.updateSettings(currentState.toAppSettings().copy(isBigText = true))
+    }
 
     /**
      * Обработка нажатия на btn_text_down (стандартный размер шрифта)
      * необходимо установить размер шрифта по умолчанию 14
      */
     fun handleDownText()
-    {}
+    {
+        repository.updateSettings(currentState.toAppSettings().copy(isBigText = false))
+    }
 
     /**
      * добавление/удалние статьи в закладки, обрабока нажатия на кнопку btn_bookmark
@@ -110,7 +128,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * и текстом errLabel "OK"
      */
     fun handleShare(){
-
+        notify(Notify.ErrorMessage("Share is not implemented","OK", null))
     }
 
     /**
