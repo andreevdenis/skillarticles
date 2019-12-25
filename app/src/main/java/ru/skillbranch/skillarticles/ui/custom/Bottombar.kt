@@ -1,6 +1,8 @@
 package ru.skillbranch.skillarticles.ui.custom
 
 import android.content.Context
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -13,6 +15,8 @@ class Bottombar@JvmOverloads constructor(
     defStyleAttr: Int = 0
 ): ConstraintLayout(context, attrs, defStyleAttr)
 {
+
+
     init {
         View.inflate(context, R.layout.layout_bottombar, this)
 
@@ -20,4 +24,6 @@ class Bottombar@JvmOverloads constructor(
         materialBg.elevation = elevation
         background = materialBg
     }
+
+
 }
