@@ -2,8 +2,10 @@ package ru.skillbranch.skillarticles.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.get
@@ -39,6 +41,32 @@ class RootActivity : AppCompatActivity() {
         viewModel.observeNotifications(this){
             renderNotification(it)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_search, menu)
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.queryHint = "Введите строку для поиска"
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String): Boolean {
+                viewModel.handleSearch(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                viewModel.handleSearch(newText)
+                return true
+            }
+        })
+        if (true) {
+            searchItem.expandActionView()
+            searchView.setQuery("sdsd", false)
+            searchView.clearFocus()
+        }
+
+        return super.onCreateOptionsMenu(menu)
     }
 
     private fun renderNotification(notify: Notify) {
