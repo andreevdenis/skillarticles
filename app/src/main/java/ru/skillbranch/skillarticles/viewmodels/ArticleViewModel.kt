@@ -5,9 +5,10 @@ import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
 import ru.skillbranch.skillarticles.extensions.data.toAppSettings
+import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
 import ru.skillbranch.skillarticles.extensions.format
 
-class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleState>(ArticleState()) {
+class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleState>(ArticleState()), IArticleViewModel {
     private val repository = ArticleRepository
 
 
@@ -54,14 +55,14 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * Получение полной информации о статье из сети
      * (или базы данных если она сохранена, наличие статьи в базе не надо реализовывать в данном уроке)
      */
-    private fun getArticleContent(): LiveData<List<Any>?>{
+    override fun getArticleContent(): LiveData<List<Any>?>{
         return repository.loadArticleContent(articleId)
     }
 
     /**
      * Получение краткой информации о статье из базы данных
      */
-    private fun getArticleData(): LiveData<ArticleData?>{
+    override fun getArticleData(): LiveData<ArticleData?>{
         return repository.getArticle(articleId)
     }
 
@@ -69,7 +70,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
     /**
      * Получение пользовательской информации о статье из базы данных
      */
-    private fun getArticlePersonalInfo(): LiveData<ArticlePersonalInfo?>{
+    override fun getArticlePersonalInfo(): LiveData<ArticlePersonalInfo?>{
         return repository.loadArticlePersonalInfo(articleId)
     }
 
@@ -77,7 +78,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
     /**
      * Получение настроек приложения
      */
-    fun handleNightMode()
+    override fun handleNightMode()
     {
         val settings = currentState.toAppSettings()
         repository.updateSettings(settings.copy(isDarkMode = !settings.isDarkMode))
@@ -88,7 +89,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * Обработка нажатия на btn_text_up (увеличение шрифта текста)
      * необходимо увеличить шрифт до значения 18
      */
-    fun handleUpText()
+    override fun handleUpText()
     {
         repository.updateSettings(currentState.toAppSettings().copy(isBigText = true))
     }
@@ -97,7 +98,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * Обработка нажатия на btn_text_down (стандартный размер шрифта)
      * необходимо установить размер шрифта по умолчанию 14
      */
-    fun handleDownText()
+    override fun handleDownText()
     {
         repository.updateSettings(currentState.toAppSettings().copy(isBigText = false))
     }
@@ -107,8 +108,23 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * необходимо отобразить сообщение пользователю "Add to bookmarks" или "Remove from bookmarks"
      * в соответствии с текущим состоянием
      */
-    fun handleBookmark(){
+    override fun handleBookmark(){
+        val toggleBookmark = {
+            val info = currentState.toArticlePersonalInfo()
+            repository.updateArticlePersonalInfo(info.copy(isBookmark =  !info.isBookmark))
+        }
 
+        toggleBookmark()
+        val msg = if(currentState.isBookmark) Notify.TextMessage("Article added to bookmarks")
+        else {
+            Notify.ActionMessage(
+                "Article removed from bookmarks",
+                "No, keep it",
+                toggleBookmark
+            )
+        }
+
+        notify(msg)
     }
 
     /**
@@ -118,8 +134,23 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * если пользователь убрал Like необходимо добавить  actionLabel в снекбар
      * "No, still like it" при нажатиии на который состояние вернется к isLike = true
      */
-    fun handleLike(){
+    override fun handleLike(){
+        val toggleLike = {
+            val info = currentState.toArticlePersonalInfo()
+            repository.updateArticlePersonalInfo(info.copy(isLike =  !info.isLike))
+        }
 
+        toggleLike()
+        val msg = if(currentState.isLike) Notify.TextMessage("Mark is liked")
+            else {
+            Notify.ActionMessage(
+            "Don't like it anymore",
+                "No, still like it",
+                toggleLike
+                )
+        }
+
+        notify(msg)
     }
 
     /**
@@ -127,7 +158,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * необходимо отобразить сообщение с ошибкой пользователю (Notify.ErrorMessage) "Share is not implemented"
      * и текстом errLabel "OK"
      */
-    fun handleShare(){
+    override fun handleShare(){
         notify(Notify.ErrorMessage("Share is not implemented","OK", null))
     }
 
@@ -135,7 +166,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * обрабока нажатия на кнопку btn_settings
      * необходимо отобразить или скрыть меню в соответствии с текущим состоянием
      */
-    fun handleToggleMenu(){
+    override fun handleToggleMenu(){
         updateState { it.copy(isShownMenu = !it.isShownMenu) }
     }
 
@@ -144,7 +175,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * при нажатии на пункту меню тулбара необходимо отобразить searchView и сохранить состояние при
      * изменении конфигурации (пересоздании активити)
      */
-    fun handleSearchMode(isSearch: Boolean){
+    override fun handleSearchMode(isSearch: Boolean){
 
     }
 
@@ -152,7 +183,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * обрабока поискового запроса, необходимо сохранить поисковый запрос и отображать его в
      * searchView при изменении конфигурации (пересоздании активити)
      */
-    fun handleSearch(query: String?){
+    override fun handleSearch(query: String?){
 
     }
 }
