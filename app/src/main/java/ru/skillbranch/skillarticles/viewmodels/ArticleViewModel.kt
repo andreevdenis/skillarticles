@@ -20,8 +20,10 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
                 title = article.title,
                 category = article.category,
                 categoryIcon = article.categoryIcon,
-                date = article.date.format()
-
+                date = article.date.format(),
+                author = article.author,
+                poster = article.poster,
+                content = article.content
             )
         }
 
@@ -115,10 +117,10 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
         }
 
         toggleBookmark()
-        val msg = if(currentState.isBookmark) Notify.TextMessage("Article added to bookmarks")
+        val msg = if(currentState.isBookmark) Notify.TextMessage("Add to bookmarks")
         else {
             Notify.ActionMessage(
-                "Article removed from bookmarks",
+                "Remove from bookmarks",
                 "No, keep it",
                 toggleBookmark
             )
@@ -144,7 +146,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
         val msg = if(currentState.isLike) Notify.TextMessage("Mark is liked")
             else {
             Notify.ActionMessage(
-            "Don't like it anymore",
+            "Don`t like it anymore",
                 "No, still like it",
                 toggleLike
                 )
