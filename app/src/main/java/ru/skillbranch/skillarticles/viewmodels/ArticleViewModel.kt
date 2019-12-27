@@ -167,7 +167,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * необходимо отобразить или скрыть меню в соответствии с текущим состоянием
      */
     override fun handleToggleMenu(){
-        updateState { it.copy(isShownMenu = !it.isShownMenu) }
+        updateState { it.copy(isShowMenu = !it.isShowMenu) }
     }
 
     /**
@@ -194,7 +194,7 @@ data class ArticleState(
     val isLoadingReviews: Boolean = true,
     val isLike: Boolean = false,
     val isBookmark: Boolean = false,
-    val isShownMenu: Boolean = false,
+    val isShowMenu: Boolean = false,
     val isBigText: Boolean = false,
     val isDarkMode: Boolean = false,
     val isSearch: Boolean = false,

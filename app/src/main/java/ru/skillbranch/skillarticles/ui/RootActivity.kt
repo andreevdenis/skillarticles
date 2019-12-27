@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.get
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.layout_bottombar.*
@@ -114,8 +113,8 @@ class RootActivity : AppCompatActivity() {
     }
 
     private fun renderUi(data: ArticleState) {
-        btn_settings.isChecked = data.isShownMenu
-        if (data.isShownMenu) submenu.open() else submenu.close()
+        btn_settings.isChecked = data.isShowMenu
+        if (data.isShowMenu) submenu.open() else submenu.close()
 
         btn_like.isChecked = data.isLike
         btn_bookmark.isChecked = data.isBookmark
