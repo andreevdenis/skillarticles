@@ -7,15 +7,15 @@ import androidx.lifecycle.*
 
 abstract class BaseViewModel<T>(initState: T): ViewModel(){
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    protected val notifications = MutableLiveData<Event<Notify>>()
+    val notifications = MutableLiveData<Event<Notify>>()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    protected val state: MediatorLiveData<T> = MediatorLiveData<T>().apply{
+    val state: MediatorLiveData<T> = MediatorLiveData<T>().apply{
         value = initState
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    protected val currentState
+    val currentState
         get() = state.value!!
 
     @UiThread
