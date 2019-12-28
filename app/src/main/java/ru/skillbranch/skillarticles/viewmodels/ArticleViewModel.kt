@@ -22,8 +22,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
                 categoryIcon = article.categoryIcon,
                 date = article.date.format(),
                 author = article.author,
-                poster = article.poster,
-                content = article.content
+                poster = article.poster
             )
         }
 
@@ -53,8 +52,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
         }
     }
 
-    val isSearch
-        get() = currentState.isSearch
+    val isSearch get() = currentState.isSearch
 
     val searchQuery
         get() = currentState.searchQuery
