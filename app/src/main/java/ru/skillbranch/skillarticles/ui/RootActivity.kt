@@ -3,6 +3,7 @@ package ru.skillbranch.skillarticles.ui
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
@@ -59,9 +60,23 @@ class RootActivity : AppCompatActivity() {
                 return true
             }
         })
-        if (true) {
+
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener{
+            override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+                viewModel.handleSearchMode(true)
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+                viewModel.handleSearchMode(false)
+                return true
+            }
+        })
+
+        if (viewModel.isSearch) {
+            val query = viewModel.searchQuery
             searchItem.expandActionView()
-            searchView.setQuery("sdsd", false)
+            searchView.setQuery(query ?: "", true)
             searchView.clearFocus()
         }
 

@@ -53,6 +53,12 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
         }
     }
 
+    val isSearch
+        get() = currentState.isSearch
+
+    val searchQuery
+        get() = currentState.searchQuery
+
     /**
      * Получение полной информации о статье из сети
      * (или базы данных если она сохранена, наличие статьи в базе не надо реализовывать в данном уроке)
@@ -178,7 +184,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * изменении конфигурации (пересоздании активити)
      */
     override fun handleSearchMode(isSearch: Boolean){
-
+        updateState { it.copy(isSearch = isSearch) }
     }
 
     /**
@@ -186,7 +192,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * searchView при изменении конфигурации (пересоздании активити)
      */
     override fun handleSearch(query: String?){
-
+        updateState { it.copy(searchQuery = query) }
     }
 }
 
