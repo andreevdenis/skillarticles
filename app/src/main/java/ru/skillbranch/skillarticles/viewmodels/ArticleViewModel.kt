@@ -22,8 +22,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
                 categoryIcon = article.categoryIcon,
                 date = article.date.format(),
                 author = article.author,
-                poster = article.poster,
-                content = article.content
+                poster = article.poster
             )
         }
 
