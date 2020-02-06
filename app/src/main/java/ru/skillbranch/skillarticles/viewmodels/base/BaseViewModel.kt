@@ -1,11 +1,11 @@
-package ru.skillbranch.skillarticles.viewmodels
+package ru.skillbranch.skillarticles.viewmodels.base
 
-import android.app.assist.AssistContent
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
+import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
 
-abstract class BaseViewModel<T>(initState: T): ViewModel(){
+abstract class BaseViewModel<T: IViewModelState>(initState: T): ViewModel(){
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val notifications = MutableLiveData<Event<Notify>>()
 
@@ -26,7 +26,8 @@ abstract class BaseViewModel<T>(initState: T): ViewModel(){
 
     @UiThread
     protected fun notify(content: Notify){
-        notifications.value = Event(content)
+        notifications.value =
+            Event(content)
     }
 
     fun observeState(owner:LifecycleOwner, onChanged: (newState: T) -> Unit){
@@ -34,7 +35,10 @@ abstract class BaseViewModel<T>(initState: T): ViewModel(){
     }
 
     fun observeNotifications(owner: LifecycleOwner, onNotify: (notification: Notify)->Unit){
-        notifications.observe(owner, EventObserver{onNotify(it)} )
+        notifications.observe(owner,
+            EventObserver {
+                onNotify(it)
+            })
     }
 
     protected fun <S> subscribeOnDataSource(
@@ -45,16 +49,6 @@ abstract class BaseViewModel<T>(initState: T): ViewModel(){
         state.addSource(source){
             state.value = onChanged(it, currentState) ?: return@addSource
         }
-    }
-}
-
-
-class ViewModelFactory(private val params: String) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ArticleViewModel::class.java)) {
-            return ArticleViewModel(params) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
@@ -80,7 +74,8 @@ class EventObserver<E>(private val onEventUnhandledContent: (E) -> Unit): Observ
 }
 
 sealed class Notify(val message: String){
-    data class TextMessage(val msg: String) :Notify(msg)
+    data class TextMessage(val msg: String) :
+        Notify(msg)
 
     data class ActionMessage(
         val msg: String,
