@@ -29,12 +29,13 @@
         <ImageView
             android:id="@+id/btn_share"
             style="@style/BottombarIcon"
+            android:clickable="true"
+            android:contentDescription="@string/share"
+            android:focusable="true"
             android:src="@drawable/ic_share_black_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/btn_bookmark"
-            app:layout_constraintTop_toTopOf="parent"
-            android:clickable="true"
-            android:focusable="true"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ru.skillbranch.skillarticles.ui.custom.CheckableImageView
             android:id="@+id/btn_settings"
@@ -42,6 +43,28 @@
             android:src="@drawable/ic_format_size_black_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:visibility="gone"
+            app:constraint_referenced_ids="btn_bookmark,btn_share,btn_like,btn_settings" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginBottom="0dp"
+            android:background="@color/color_on_article_bar"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" >
+
+        </LinearLayout>
 
 </merge>
