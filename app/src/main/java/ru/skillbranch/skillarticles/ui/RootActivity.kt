@@ -23,6 +23,8 @@ import ru.skillbranch.skillarticles.viewmodels.ViewModelFactory
 class RootActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ArticleViewModel
+    private var isSearching = false
+    private var searchQuery: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +38,11 @@ class RootActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
         viewModel.observeState(this){
             renderUi(it)
+
+            if (it.isSearch){
+                isSearching = true
+                searchQuery = it.searchQuery
+            }
         }
 
         viewModel.observeNotifications(this){
@@ -45,9 +52,15 @@ class RootActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_search, menu)
-        val searchItem = menu?.findItem(R.id.action_search)
-        val searchView = searchItem?.actionView as SearchView
+        val menuItem = menu?.findItem(R.id.action_search)
+        val searchView = menuItem?.actionView as SearchView
         searchView.queryHint = "Введите строку для поиска"
+
+        if (isSearching) {
+            menuItem.expandActionView()
+            searchView.setQuery(searchQuery ?: "", false)
+            searchView.clearFocus()
+        }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String): Boolean {
@@ -61,7 +74,7 @@ class RootActivity : AppCompatActivity() {
             }
         })
 
-        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener{
+        menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener{
             override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
                 viewModel.handleSearchMode(true)
                 return true
@@ -72,13 +85,6 @@ class RootActivity : AppCompatActivity() {
                 return true
             }
         })
-
-        if (viewModel.isSearch) {
-            val query = viewModel.searchQuery
-            searchItem.expandActionView()
-            searchView.setQuery(query ?: "", true)
-            searchView.clearFocus()
-        }
 
         return super.onCreateOptionsMenu(menu)
     }

@@ -52,11 +52,6 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
         }
     }
 
-    val isSearch get() = currentState.isSearch
-
-    val searchQuery
-        get() = currentState.searchQuery
-
     /**
      * Получение полной информации о статье из сети
      * (или базы данных если она сохранена, наличие статьи в базе не надо реализовывать в данном уроке)
