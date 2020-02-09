@@ -189,15 +189,19 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * searchView при изменении конфигурации (пересоздании активити)
      */
     override fun handleSearch(query: String?){
+        query ?: return
+        //val result = (currentState.content.firstOrNull() as? String).indexesOf(query)
+        //    .map { it to it + query.length}
+        //searchResults = result ниже прописать
         updateState { it.copy(searchQuery = query) }
     }
 
     fun handleUpResult() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        updateState { it.copy(searchPosition = it.searchPosition.dec()) }
     }
 
     fun handledDownResult() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        updateState { it.copy(searchPosition = it.searchPosition.inc()) }
     }
 }
 

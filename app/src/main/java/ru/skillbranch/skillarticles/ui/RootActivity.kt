@@ -1,7 +1,10 @@
 package ru.skillbranch.skillarticles.ui
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -17,12 +20,13 @@ import kotlinx.android.synthetic.main.search_view_layout.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
+import ru.skillbranch.skillarticles.ui.custom.SearchSpan
 import ru.skillbranch.skillarticles.viewmodels.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 
-class RootActivity : BaseActivity<ArticleViewModel>() {
+class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
     override val layout: Int = R.layout.activity_root
     override lateinit var viewModel: ArticleViewModel
     private var isSearching = false
@@ -47,6 +51,38 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
         setupToolbar()
         setupBottombar()
         setupSubmenu()
+    }
+
+    override fun renderSearchResult(searchResult: List<Pair<Int, Int>>) {
+        val content = tv_text_content.text as Spannable
+        val bgColor = Color.RED
+        val fgColor = Color.WHITE
+        searchResult.forEach { (start, end) ->
+            content.setSpan(
+                SearchSpan(bgColor, fgColor),
+                start,
+                end,
+                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
+
+    override fun renderSearchPosition(searchPosition: Int) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun clearSearchResult() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun showSearchBar() {
+        bottombar.setSearchState(true)
+        //scroll.setMarginOptionally(bottom = dpToIntPx(56))
+    }
+
+    override fun hideSearchBar() {
+        bottombar.setSearchState(false)
+        //scroll.setMarginOptionally(bottom = dpToIntPx(0))
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -148,7 +184,10 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
     }
 
     private fun renderUi(data: ArticleState) {
-        bottombar.setSearchState(data.isSearch)
+        if (data.isSearch)
+            showSearchBar()
+        else
+            hideSearchBar()
 
         btn_settings.isChecked = data.isShowMenu
         if (data.isShowMenu) submenu.open() else submenu.close()
@@ -190,6 +229,4 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
             logo.layoutParams = it
         }
     }
-
-
 }
