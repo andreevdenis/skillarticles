@@ -3,14 +3,19 @@ package ru.skillbranch.skillarticles.ui
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.method.ScrollingMovementMethod
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.text.getSpans
+import androidx.core.text.set
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
@@ -20,17 +25,26 @@ import kotlinx.android.synthetic.main.search_view_layout.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
+import ru.skillbranch.skillarticles.ui.base.Binding
+import ru.skillbranch.skillarticles.ui.custom.SearchFocusSpan
 import ru.skillbranch.skillarticles.ui.custom.SearchSpan
+import ru.skillbranch.skillarticles.ui.delegates.AttrValue
 import ru.skillbranch.skillarticles.viewmodels.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
+import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 
 class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
+    override val binding: Binding by lazy { ArticleBinding() }
     override val layout: Int = R.layout.activity_root
     override lateinit var viewModel: ArticleViewModel
+
     private var isSearching = false
     private var searchQuery: String? = null
+
+    private val bgColor by AttrValue(R.attr.colorSecondary)
+    private val fgColor by AttrValue(R.attr.colorOnSecondary)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,8 +69,8 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
 
     override fun renderSearchResult(searchResult: List<Pair<Int, Int>>) {
         val content = tv_text_content.text as Spannable
-        val bgColor = Color.RED
-        val fgColor = Color.WHITE
+        clearSearchResult()
+
         searchResult.forEach { (start, end) ->
             content.setSpan(
                 SearchSpan(bgColor, fgColor),
@@ -65,14 +79,33 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
                 SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
+
+        renderSearchPosition(0)
     }
 
     override fun renderSearchPosition(searchPosition: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val content = tv_text_content.text as Spannable
+
+        val spans = content.getSpans<SearchSpan>()
+        content.getSpans<SearchFocusSpan>().forEach { content.removeSpan(it) }
+
+        if (spans.isNotEmpty()) {
+            val result = spans[searchPosition]
+            Selection.setSelection(content, content.getSpanStart(result))
+            content.setSpan(
+                SearchFocusSpan(bgColor, fgColor),
+                content.getSpanStart(result),
+                content.getSpanEnd(result),
+                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
     }
 
     override fun clearSearchResult() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val content = tv_text_content.text as Spannable
+        content.getSpans<SearchSpan>()
+            .forEach { content.removeSpan(it) }
     }
 
     override fun showSearchBar() {
@@ -124,7 +157,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         return super.onCreateOptionsMenu(menu)
     }
 
-    private fun renderNotification(notify: Notify) {
+    override fun renderNotification(notify: Notify) {
         val snackbar = Snackbar.make(coordinator_container, notify.message, Snackbar.LENGTH_LONG)
             .setAnchorView(bottombar)
 
@@ -184,10 +217,10 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
     }
 
     private fun renderUi(data: ArticleState) {
-        if (data.isSearch)
-            showSearchBar()
-        else
-            hideSearchBar()
+        if (data.isSearch) showSearchBar() else hideSearchBar()
+
+        if (data.searchResults.isNullOrEmpty()) renderSearchResult(data.searchResults)
+        if (data.searchResults.isNullOrEmpty()) renderSearchPosition(data.searchPosition)
 
         btn_settings.isChecked = data.isShowMenu
         if (data.isShowMenu) submenu.open() else submenu.close()
@@ -209,7 +242,13 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             btn_text_down.isChecked = true
         }
 
-        tv_text_content.text = if (data.isLoadingContent) "loading" else data.content.first() as String
+        if (data.isLoadingContent) {
+            tv_text_content.text = "loading"
+        } else if (tv_text_content.text == "loading"){
+            val content = data.content.first() as String
+            tv_text_content.setText(content, TextView.BufferType.SPANNABLE)
+            tv_text_content.movementMethod = ScrollingMovementMethod()
+        }
 
         toolbar.title = data.title ?: "loading"
         toolbar.subtitle = data.category ?: "loading"
@@ -227,6 +266,14 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             it.height = this.dpToIntPx(40)
             it.marginEnd = this.dpToIntPx(16)
             logo.layoutParams = it
+        }
+    }
+
+    inner class ArticleBinding() : Binding() {
+        override fun onFinishInfale() {
+        }
+
+        override fun bind(data: IViewModelState) {
         }
     }
 }
