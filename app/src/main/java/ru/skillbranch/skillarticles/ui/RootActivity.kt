@@ -39,15 +39,12 @@ import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 
 class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
-    override val binding: Binding by lazy { ArticleBinding() }
+    override val binding: ArticleBinding by lazy { ArticleBinding() }
     override val layout: Int = R.layout.activity_root
     override val viewModel: ArticleViewModel by lazy {
         val vmFactory = ViewModelFactory("0")
         ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
     }
-
-    private var isSearching = false
-    private var searchQuery: String? = null
 
     private val bgColor by AttrValue(R.attr.colorSecondary)
     private val fgColor by AttrValue(R.attr.colorOnSecondary)
@@ -116,10 +113,11 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         val searchView = menuItem?.actionView as SearchView
         searchView.queryHint = "Введите строку для поиска"
 
-        if (isSearching) {
+        if (binding.isSearch) {
             menuItem.expandActionView()
-            searchView.setQuery(searchQuery ?: "", false)
-            searchView.clearFocus()
+            searchView.setQuery(binding.searchQuery ?: "", false)
+            if (binding.isFocusedSearch) searchView?.requestFocus()
+            else searchView.clearFocus()
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
@@ -223,6 +221,9 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
     }
 
     inner class ArticleBinding() : Binding() {
+        var isFocusedSearch: Boolean = false
+        var searchQuery: String? = null
+
         private var isLoadingContent by ObserveProp(true)
 
         private var isLike : Boolean by RenderProp(false) {btn_like.isChecked = it}
@@ -278,6 +279,10 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
                     renderSearchResult(sr)
                     renderSearchPosition(sp)
                 }
+                if (!ilc && !iss) {
+                    clearSearchResult()
+                }
+
                 bottombar.bindSearchInfo(sr.size, sp)
             }
         }
@@ -300,6 +305,14 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             searchQuery = data.searchQuery
             searchPosition = data.searchPosition
             searchResults = data.searchResults
+        }
+
+        override fun saveUi(outState: Bundle) {
+            outState.putBoolean(::isFocusedSearch.name, search_view?.hasFocus() ?: false)
+        }
+
+        override fun restoreUi(savedState: Bundle) {
+            isFocusedSearch = savedState.getBoolean(::isFocusedSearch.name)
         }
     }
 }

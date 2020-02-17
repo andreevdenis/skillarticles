@@ -1,6 +1,7 @@
 package ru.skillbranch.skillarticles.viewmodels
 
 import android.os.Bundle
+import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
@@ -181,7 +182,7 @@ class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleStat
      * изменении конфигурации (пересоздании активити)
      */
     override fun handleSearchMode(isSearch: Boolean){
-        updateState { it.copy(isSearch = isSearch) }
+        updateState { it.copy(isSearch = isSearch, isShowMenu = !isSearch, searchPosition = 0) }
     }
 
     /**
@@ -230,10 +231,22 @@ data class ArticleState(
 ): IViewModelState {
 
     override fun save(outState: Bundle) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        outState.putAll(
+            bundleOf(
+                "isSearch" to isSearch,
+                "searchQuery" to searchQuery,
+                "searchResults" to searchResults,
+                "searchPosition" to searchPosition
+            )
+        )
     }
 
-    override fun restore(savedState: Bundle): IViewModelState {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun restore(savedState: Bundle): ArticleState {
+        return copy(
+            isSearch = savedState["isSearch"] as Boolean,
+            searchQuery = savedState["searchQuery"] as? String,
+            searchResults = savedState["searchResults"] as List<Pair<Int, Int>>,
+            searchPosition = savedState["searchPosition"] as Int
+        )
     }
 }
