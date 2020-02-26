@@ -17,7 +17,6 @@ import ru.skillbranch.skillarticles.viewmodels.base.Notify
 class ArticleViewModel (private val articleId:String): BaseViewModel<ArticleState>(ArticleState()), IArticleViewModel {
     private val repository = ArticleRepository
 
-
     init {
         subscribeOnDataSource(getArticleData()){ article, state ->
             article ?: return@subscribeOnDataSource null
