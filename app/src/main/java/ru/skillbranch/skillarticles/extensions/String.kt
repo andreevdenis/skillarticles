@@ -2,6 +2,7 @@ package ru.skillbranch.skillarticles.extensions
 
 fun String?.indexesOf(substr: String, ignoreCase: Boolean = true): List<Int> {
     val result = mutableListOf<Int>()
+    if (substr.isNullOrEmpty()) return result
     val substrLen = substr.length
     var  startindex = 0
     do {
